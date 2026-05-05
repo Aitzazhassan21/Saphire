@@ -35,6 +35,7 @@ app.use(cors({
 // INFO: API endpoints
 app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
+app.use("/api/products", productRouter); // Alias for /api/products
 app.use("/api/contact", contactRouter);
 app.use("/api/coupons", couponRouter);
 app.use("/api/reviews", reviewsRouter);

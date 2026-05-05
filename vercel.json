@@ -16,8 +16,7 @@
   "routes": [
     {
       "src": "/api/products",
-      "destination": "/api/product/list",
-      "statusCode": 200
+      "dest": "/backend/api/index.js"
     },
     {
       "src": "/api/(.*)",
