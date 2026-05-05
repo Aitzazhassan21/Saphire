@@ -18,8 +18,12 @@ import newsletterRouter from "./routes/newsletterRoute.js";
 // INFO: Create express app
 const app = express();
 const port = process.env.PORT || 4000;
-connectDB();
-connectCloudinary();
+
+// Initialize connections (only if not in Vercel environment)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  connectDB();
+  connectCloudinary();
+}
 
 // INFO: Middleware
 app.use(express.json());
@@ -47,7 +51,12 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// INFO: Start server
-app.listen(port, () =>
-  console.log(`Server is running on at http://localhost:${port}`)
-);
+// INFO: Start server (only if not in Vercel environment)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(port, () =>
+    console.log(`Server is running on at http://localhost:${port}`)
+  );
+}
+
+// INFO: Export for Vercel serverless
+export default app;
