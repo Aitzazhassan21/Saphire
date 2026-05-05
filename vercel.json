@@ -15,6 +15,11 @@
   ],
   "routes": [
     {
+      "src": "/api/products",
+      "destination": "/api/product/list",
+      "statusCode": 200
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/backend/api/index.js"
     },
