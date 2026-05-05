@@ -2,8 +2,38 @@ import app from '../server.js';
 import connectDB from '../config/mongodb.js';
 import connectCloudinary from '../config/cloudinary.js';
 
-// Initialize connections for serverless
-await connectDB();
-await connectCloudinary();
+let isInitialized = false;
+let initError = null;
 
-export default app;
+async function initialize() {
+  if (isInitialized) return;
+  if (initError) throw initError;
+
+  try {
+    console.log("[Serverless] Initializing connections...");
+    await connectDB();
+    await connectCloudinary();
+    isInitialized = true;
+    console.log("[Serverless] Initialization complete");
+  } catch (error) {
+    initError = error;
+    console.error("[Serverless] Initialization failed:", error.message);
+    throw error;
+  }
+}
+
+// Wrapper to ensure initialization before handling requests
+export default async function handler(req, res) {
+  try {
+    await initialize();
+    // Forward to express app
+    return app(req, res);
+  } catch (error) {
+    console.error("[Serverless] Request failed:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server initialization failed: " + error.message,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+}

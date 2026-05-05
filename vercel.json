@@ -9,11 +9,19 @@
       }
     },
     {
+      "src": "backend/api/health.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "backend/api/index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/backend/api/health.js"
+    },
     {
       "src": "/api/products",
       "dest": "/backend/api/index.js"
