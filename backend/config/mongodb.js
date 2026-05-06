@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
-// CRITICAL: disable command buffering globally BEFORE any connection is created.
-// In serverless, this prevents 'buffering timed out' when connection is slow/failing.
-mongoose.set("bufferCommands", false);
-mongoose.set("bufferTimeoutMS", 3000); // fail fast instead of buffering 10s
+// Serverless: enable command buffering so queries wait for connection
+// instead of failing immediately. Use 8s timeout (enough for cold start).
+mongoose.set("bufferCommands", true);
+mongoose.set("bufferTimeoutMS", 8000);
 
 const connectDB = async () => {
   const rawUri = process.env.MONGODB_URI;
@@ -36,7 +36,6 @@ const connectDB = async () => {
     serverSelectionTimeoutMS: 15000,    // 15s: cold-start + Atlas DNS/TLS can be slow
     connectTimeoutMS: 15000,            // 15s connection timeout
     socketTimeoutMS: 45000,           // 45s socket timeout
-    bufferCommands: false,            // (also set globally above)
     maxPoolSize: 1,                   // single connection for serverless
   };
 
