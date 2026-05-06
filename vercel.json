@@ -43,6 +43,9 @@
   },
   "functions": {
     "backend/api/index.js": {
+      "maxDuration": 30
+    },
+    "backend/api/health.js": {
       "maxDuration": 10
     }
   }

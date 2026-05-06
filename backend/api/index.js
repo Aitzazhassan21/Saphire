@@ -1,6 +1,7 @@
 import app from '../server.js';
 import connectDB from '../config/mongodb.js';
 import connectCloudinary from '../config/cloudinary.js';
+import mongoose from 'mongoose';
 
 let isInitialized = false;
 let initError = null;
@@ -14,7 +15,7 @@ async function initialize() {
     await connectDB();
     await connectCloudinary();
     isInitialized = true;
-    console.log("[Serverless] Initialization complete");
+    console.log("[Serverless] Initialization complete. Mongoose readyState:", mongoose.connection.readyState);
   } catch (error) {
     initError = error;
     console.error("[Serverless] Initialization failed:", error.message);
@@ -22,10 +23,23 @@ async function initialize() {
   }
 }
 
+function isDbReady() {
+  return mongoose.connection.readyState === 1; // 1 = connected
+}
+
 // Wrapper to ensure initialization before handling requests
 export default async function handler(req, res) {
   try {
     await initialize();
+
+    if (!isDbReady()) {
+      console.error("[Serverless] DB not ready. readyState:", mongoose.connection.readyState);
+      return res.status(503).json({
+        success: false,
+        message: "Database connection is not ready. Please retry in a few seconds."
+      });
+    }
+
     // Forward to express app
     return app(req, res);
   } catch (error) {
