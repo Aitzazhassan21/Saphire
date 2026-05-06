@@ -29,7 +29,11 @@ const connectDB = async () => {
     uri = `${base.replace(/\/+$/, "")}/trendify${query ? `?${query}` : ""}`;
   }
 
-  console.log("[MongoDB] Connecting to:", uri.replace(/:([^@]+)@/, ':***@'));
+  // Log connection attempt details
+  console.log("[MongoDB] === CONNECTION ATTEMPT ===");
+  console.log("[MongoDB] Full URI (masked):", uri.replace(/:([^@]+)@/, ':***@'));
+  console.log("[MongoDB] Has query params:", uri.includes('?'));
+  console.log("[MongoDB] Node env:", process.env.NODE_ENV);
 
   // Connection options for serverless environments
   const options = {
@@ -49,22 +53,27 @@ const connectDB = async () => {
   }
 
   if (!cached.promise) {
+    console.log("[MongoDB] Starting mongoose.connect()...");
     cached.promise = mongoose
       .connect(uri, options)
       .then((m) => {
         cached.conn = m.connection;
-        console.log("[MongoDB] Connected successfully");
+        console.log("[MongoDB] ✅ Connected successfully!");
+        console.log("[MongoDB] Connection readyState:", mongoose.connection.readyState);
         return cached.conn;
       })
       .catch((error) => {
         cached.promise = null;
-        console.error("[MongoDB] Connection failed:", error.message);
+        console.error("[MongoDB] ❌ Connection FAILED:", error.message);
+        console.error("[MongoDB] Error name:", error.name);
         console.error("[MongoDB] Error code:", error.code || "N/A");
         throw error;
       });
   }
 
+  console.log("[MongoDB] Awaiting connection promise...");
   await cached.promise;
+  console.log("[MongoDB] Connection promise resolved. readyState:", mongoose.connection.readyState);
   return true;
 };
 
