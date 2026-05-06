@@ -47,6 +47,22 @@ app.use("/api/admin/settings", siteSettingsRouter);
 app.use("/api/settings/public", siteSettingsRouter);
 app.use("/api/newsletter", newsletterRouter);
 
+// INFO: Health endpoint (useful for Vercel diagnostics)
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    timestamp: new Date().toISOString(),
+    env: {
+      mongodb_uri_set: !!process.env.MONGODB_URI,
+      jwt_secret_set: !!process.env.JWT_SECRET,
+      admin_email_set: !!process.env.ADMIN_EMAIL,
+      admin_password_set: !!process.env.ADMIN_PASSWORD,
+      node_env: process.env.NODE_ENV,
+      vercel: !!process.env.VERCEL,
+    },
+  });
+});
+
 // INFO: Default route
 app.get("/", (req, res) => {
   res.send("API is running...");
