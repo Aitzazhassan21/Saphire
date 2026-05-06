@@ -35,15 +35,34 @@ const connectDB = async () => {
     maxPoolSize: 1,                     // Single connection for serverless
   };
 
-  try {
-    await mongoose.connect(uri, options);
-    console.log("[MongoDB] Connected successfully");
+  // Cache the connection across serverless invocations (warm starts)
+  // so we don't reconnect on every request.
+  const globalKey = "__mongooseConnection";
+  const cached = globalThis[globalKey] || (globalThis[globalKey] = { conn: null, promise: null });
+
+  if (cached.conn) {
     return true;
-  } catch (error) {
-    console.error("[MongoDB] Connection failed:", error.message);
-    console.error("[MongoDB] Error code:", error.code || 'N/A');
-    throw error; // Re-throw so caller knows connection failed
   }
+
+  if (!cached.promise) {
+    mongoose.set("bufferCommands", false);
+    cached.promise = mongoose
+      .connect(uri, options)
+      .then((m) => {
+        cached.conn = m.connection;
+        console.log("[MongoDB] Connected successfully");
+        return cached.conn;
+      })
+      .catch((error) => {
+        cached.promise = null;
+        console.error("[MongoDB] Connection failed:", error.message);
+        console.error("[MongoDB] Error code:", error.code || "N/A");
+        throw error;
+      });
+  }
+
+  await cached.promise;
+  return true;
 };
 
 export default connectDB;
