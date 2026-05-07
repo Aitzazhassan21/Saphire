@@ -15,7 +15,7 @@ const DiscountPopup = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post('http://localhost:4000/api/coupons/claim', { email });
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'}/api/coupons/claim`, { email });
       if (response.data.success) {
         setCouponCode(response.data.couponCode);
         setShowSuccess(true);
