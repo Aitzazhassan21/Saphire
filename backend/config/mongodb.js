@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 // Serverless: enable command buffering so queries wait for connection
-// instead of failing immediately. Use 8s timeout (enough for cold start).
+// instead of failing immediately. Use 30s timeout for Vercel cold starts.
 mongoose.set("bufferCommands", true);
-mongoose.set("bufferTimeoutMS", 8000);
+mongoose.set("bufferTimeoutMS", 30000);
 
 const connectDB = async () => {
   const rawUri = process.env.MONGODB_URI;

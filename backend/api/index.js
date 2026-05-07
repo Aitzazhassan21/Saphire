@@ -27,11 +27,11 @@ function isDbReady() {
   return mongoose.connection.readyState === 1; // 1 = connected
 }
 
-async function waitForDbReady(maxWaitMs = 10000) {
+async function waitForDbReady(maxWaitMs = 30000) {
   const start = Date.now();
   while (Date.now() - start < maxWaitMs) {
     if (isDbReady()) return true;
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 500));
   }
   return false;
 }
@@ -41,8 +41,8 @@ export default async function handler(req, res) {
   try {
     await initialize();
 
-    // Wait up to 10s for DB to be fully ready (handles cold start race condition)
-    const dbReady = await waitForDbReady(10000);
+    // Wait up to 30s for DB to be fully ready (handles cold start race condition)
+    const dbReady = await waitForDbReady(30000);
     if (!dbReady) {
       console.error("[Serverless] DB not ready after wait. readyState:", mongoose.connection.readyState);
       return res.status(503).json({
