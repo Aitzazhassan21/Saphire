@@ -18,10 +18,12 @@ const Reviews = ({ token }) => {
     fetchReviews();
   }, [token]);
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:4000/api/admin/reviews', {
+      const response = await axios.get(`${backendUrl}/api/admin/reviews`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
@@ -40,14 +42,14 @@ const Reviews = ({ token }) => {
     try {
       if (editingReview) {
         await axios.put(
-          `http://localhost:4000/api/admin/reviews/${editingReview._id}`,
+          `${backendUrl}/api/admin/reviews/${editingReview._id}`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         toast.success('Review updated successfully');
       } else {
         await axios.post(
-          'http://localhost:4000/api/admin/reviews',
+          `${backendUrl}/api/admin/reviews`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -77,7 +79,7 @@ const Reviews = ({ token }) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     
     try {
-      await axios.delete(`http://localhost:4000/api/admin/reviews/${id}`, {
+      await axios.delete(`${backendUrl}/api/admin/reviews/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Review deleted successfully');
@@ -91,7 +93,7 @@ const Reviews = ({ token }) => {
   const toggleVisibility = async (review) => {
     try {
       await axios.put(
-        `http://localhost:4000/api/admin/reviews/${review._id}`,
+        `${backendUrl}/api/admin/reviews/${review._id}`,
         { ...review, isVisible: !review.isVisible },
         { headers: { Authorization: `Bearer ${token}` } }
       );

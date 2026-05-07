@@ -11,10 +11,12 @@ const Leads = ({ token }) => {
     fetchLeads();
   }, [token]);
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+
   const fetchLeads = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:4000/api/admin/leads', {
+      const response = await axios.get(`${backendUrl}/api/admin/leads`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
